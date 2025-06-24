@@ -1,20 +1,91 @@
+import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import Onboarding from './screens/Onboarding';
+import Profile from './screens/Profile';
+import SplashScreen from './screens/SplashScreen';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [state, setState] = useState({
+    isLoading: true,
+    isOnboardingCompleted: false,
+  });
+
+  useEffect(() => {
+    // Check if onboarding is completed when app loads
+    const checkOnboardingStatus = async () => {
+      try {
+        const isCompleted = await AsyncStorage.getItem('isOnboardingCompleted');
+        setState({
+          isLoading: false,
+          isOnboardingCompleted: isCompleted === 'true',
+        });
+      } catch (error) {
+        console.error('Error reading onboarding status:', error);
+        setState({
+          isLoading: false,
+          isOnboardingCompleted: false,
+        });
+      }
+    };
+
+    checkOnboardingStatus();
+  }, []);
+
+  const handleOnboardingComplete = () => {
+    setState(prevState => ({
+      ...prevState,
+      isOnboardingCompleted: true,
+    }));
+  };
+
+  const handleLogout = () => {
+    setState({
+      isLoading: false,
+      isOnboardingCompleted: false,
+    });
+  };
+
+  if (state.isLoading) {
+    // Show splash screen while loading
+    return <SplashScreen />;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!!!!!!</Text>
+    <NavigationContainer>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false, // Hide the navigation header
+        }}
+      >
+        {state.isOnboardingCompleted ? (
+          // User has completed onboarding, show main app screens
+          <Stack.Screen name="Profile">
+            {props => (
+              <Profile 
+                {...props} 
+                onLogout={handleLogout}
+              />
+            )}
+          </Stack.Screen>
+        ) : (
+          // User hasn't completed onboarding, show onboarding screen
+          <Stack.Screen name="Onboarding">
+            {props => (
+              <Onboarding 
+                {...props} 
+                onComplete={handleOnboardingComplete}
+              />
+            )}
+          </Stack.Screen>
+        )}
+      </Stack.Navigator>
       <StatusBar style="auto" />
-    </View>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
