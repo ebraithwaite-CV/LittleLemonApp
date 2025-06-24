@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 
-const Profile = ({ onLogout }) => {
+const Profile = ({ navigation, onLogout }) => {
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -226,7 +226,7 @@ const Profile = ({ onLogout }) => {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color="#495E57" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Profile</Text>

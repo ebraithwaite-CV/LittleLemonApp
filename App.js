@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Onboarding from './screens/Onboarding';
 import Profile from './screens/Profile';
+import Home from './screens/Home';
 import SplashScreen from './screens/SplashScreen';
 
 const Stack = createNativeStackNavigator();
@@ -65,14 +66,23 @@ export default function App() {
       >
         {state.isOnboardingCompleted ? (
           // User has completed onboarding, show main app screens
-          <Stack.Screen name="Profile">
-            {props => (
-              <Profile 
-                {...props} 
-                onLogout={handleLogout}
-              />
-            )}
-          </Stack.Screen>
+          <>
+            <Stack.Screen name="Home">
+              {props => (
+                <Home 
+                  {...props} 
+                />
+              )}
+            </Stack.Screen>
+            <Stack.Screen name="Profile">
+              {props => (
+                <Profile 
+                  {...props} 
+                  onLogout={handleLogout}
+                />
+              )}
+            </Stack.Screen>
+          </>
         ) : (
           // User hasn't completed onboarding, show onboarding screen
           <Stack.Screen name="Onboarding">
